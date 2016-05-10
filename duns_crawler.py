@@ -98,7 +98,7 @@ def main():
         name = entry_name.get()
         try:
             assert name != ""
-            assert ' ' not in name
+            # assert ' ' not in name
         except AssertionError:
             tkMessageBox.showerror("名称", "名称不能为空！")
             return

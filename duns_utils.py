@@ -43,6 +43,7 @@ def get_search_url(country,
         assert name != ""
     except AssertionError:
         raise Exception("company name required!")
+    name = name.replace(' ', "%20")
     key_str += "name=%s&" % name
     try:
         if country in ["", "United States"]:
@@ -53,6 +54,8 @@ def get_search_url(country,
         state] if country in default_country and state is not None else ""
     key_str += "" if city is None and city != "" else "city=%s&" % city
     key_str += "" if zip_code is None else "zip=%d&" % zip_code
+    if address is not None:
+        address = address.replace(' ', "%20")
     key_str += "" if address is None else "address=%s&" % address
     key_str = key_str[:-1]
     return base_url + key_str
