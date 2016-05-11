@@ -116,7 +116,7 @@ def main():
             result_path = search_callback(country, state, name, city, zip_code,
                                           address)
         except Exception, e:
-            tkMessageBox.showerror("底层错误", e.what())
+            tkMessageBox.showerror("底层错误", e)
             return
         tkMessageBox.showinfo("结果", "查询成功，结果保存在文件%s中！" % result_path)
 

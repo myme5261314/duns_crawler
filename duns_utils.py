@@ -15,6 +15,7 @@ import csv
 import datetime
 from static_content import *
 
+"https://www.dandb.com/search/?search_type=duns&duns=557700898&country="
 
 def get_search_url(country,
                    name,
