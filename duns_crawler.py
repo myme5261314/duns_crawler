@@ -75,7 +75,8 @@ def main():
     entry_address.pack(fill="both")
 
     def search_callback_wrapper():
-        country_idx = list_country.curselection()
+        # curselection returns str list.
+        country_idx = map(int, list_country.curselection())
         try:
             assert len(country_idx) == 1
             country_idx = country_idx[0]
