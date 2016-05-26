@@ -10,6 +10,7 @@ This is a crawler to get duns.
 """
 
 import Tkinter
+import ttk
 import tkMessageBox
 from static_content import *
 from duns_utils import search_callback
@@ -21,58 +22,66 @@ def main():
     This is the main function.
     """
     countries = sorted(get_country_dict().keys())
-    states = sorted(get_state_dict().keys())
+    # states are useless if we don't need US company.
+    # states = sorted(get_state_dict().keys())
 
-    top = Tkinter.Tk()
-    top.title("duns助手")
+    root = Tkinter.Tk()
+    root.title("duns助手")
 
-    frame_country = Tkinter.Frame(top)
-    frame_country.pack()
-    label_country = Tkinter.Label(frame_country, text="国家")
-    label_country.pack()
-    list_country = Tkinter.Listbox(frame_country, exportselection=False)
+    # Frame layout level one.
+    f_permilinary = Tkinter.LabelFrame(root, text="必填项")
+    f_permilinary.grid(column=0, row=0)
+    f_trival = Tkinter.LabelFrame(root, text="可空项")
+    f_trival.grid(column=1, row=0, sticky="NW")
+    f_action = Tkinter.Frame(root)
+    f_action.grid(column=2, row=0)
+    f_result = Tkinter.LabelFrame(root, text="结果")
+    f_result.grid(column=0, row=1, columnspan=3, sticky="WE")
+
+    ff_country = Tkinter.Frame(f_permilinary)
+    ff_country.grid(column=0, row=0)
+    ff_name = Tkinter.Frame(f_permilinary)
+    ff_name.grid(column=0, row=1)
+
+    ff_city = Tkinter.Frame(f_trival)
+    ff_city.grid(column=0, row=1)
+    ff_zip = Tkinter.Frame(f_trival)
+    ff_zip.grid(column=0, row=2)
+    ff_address = Tkinter.Frame(f_trival)
+    ff_address.grid(column=0, row=3)
+
+    ff_button = Tkinter.Frame(f_action)
+    ff_button.grid()
+
+    ff_treeview = Tkinter.Frame(f_result)
+    ff_treeview.grid(sticky="WE")
+
+    label_country = Tkinter.Label(ff_country, text="国家")
+    label_country.grid(column=0, row=0, sticky="WE")
+    list_country = Tkinter.Listbox(ff_country, exportselection=False)
     for country in reversed(countries):
         list_country.insert(0, country)
-    list_country.pack(fill="both")
-    list_country.config(width=0)
+    list_country.grid(column=0, row=1, sticky="WE")
 
-    frame_state = Tkinter.Frame(top)
-    frame_state.pack()
-    label_state = Tkinter.Label(frame_state, text="州")
-    label_state.pack()
-    list_state = Tkinter.Listbox(frame_state, exportselection=False)
-    for state in reversed(states):
-        list_state.insert(0, state)
-    list_state.pack(fill="both")
-    list_state.config(width=0)
+    label_name = Tkinter.Label(ff_name, text="名称：")
+    label_name.grid(column=0, row=0)
+    entry_name = Tkinter.Entry(ff_name)
+    entry_name.grid(column=1, row=0)
 
-    frame_name = Tkinter.Frame(top)
-    frame_name.pack(fill="both")
-    label_name = Tkinter.Label(frame_name, text="名称（必需）：")
-    label_name.pack(side="left")
-    entry_name = Tkinter.Entry(frame_name)
-    entry_name.pack(fill="both")
+    label_city = Tkinter.Label(ff_city, text="城市：")
+    label_city.grid(column=0, row=0)
+    entry_city = Tkinter.Entry(ff_city)
+    entry_city.grid(column=1, row=0)
 
-    frame_city = Tkinter.Frame(top)
-    frame_city.pack(fill="both")
-    label_city = Tkinter.Label(frame_city, text="城市（可空）：")
-    label_city.pack(side="left", fill="both")
-    entry_city = Tkinter.Entry(frame_city)
-    entry_city.pack(fill="both")
+    label_zip = Tkinter.Label(ff_zip, text="邮编：")
+    label_zip.grid(column=0, row=0)
+    entry_zip = Tkinter.Entry(ff_zip)
+    entry_zip.grid(column=1, row=0)
 
-    frame_zip = Tkinter.Frame(top)
-    frame_zip.pack(fill="both")
-    label_zip = Tkinter.Label(frame_zip, text="邮编（可空）：")
-    label_zip.pack(side="left")
-    entry_zip = Tkinter.Entry(frame_zip)
-    entry_zip.pack(fill="both")
-
-    frame_address = Tkinter.Frame(top)
-    frame_address.pack(fill="both")
-    label_address = Tkinter.Label(frame_address, text="地址（可空）:")
-    label_address.pack(side="left")
-    entry_address = Tkinter.Entry(frame_address)
-    entry_address.pack(fill="both")
+    label_address = Tkinter.Label(ff_address, text="地址：")
+    label_address.grid(column=0, row=0)
+    entry_address = Tkinter.Entry(ff_address)
+    entry_address.grid(column=1, row=0)
 
     def search_callback_wrapper():
         # curselection returns str list.
@@ -84,17 +93,6 @@ def main():
             tkMessageBox.showerror("国家", "请选择国家！")
             return
         country = countries[country_idx]
-
-        state_idx = list_state.curselection()
-        if country == "United States":
-            try:
-                assert len(state_idx) == 1
-            except AssertionError:
-                tkMessageBox.showerror("国家为美国", "请选择州！")
-                return
-            state = states[state_idx[0]]
-        else:
-            state = ""
 
         name = entry_name.get()
         try:
@@ -114,21 +112,32 @@ def main():
         address = entry_address.get()
         result_path = ""
         try:
-            result_path = search_callback(country, state, name, city, zip_code,
+            result_path = search_callback(country, "", name, city, zip_code,
                                           address)
         except Exception, e:
             tkMessageBox.showerror("底层错误", e)
             return
         tkMessageBox.showinfo("结果", "查询成功，结果保存在文件%s中！" % result_path)
 
-    frame_button = Tkinter.Frame(top)
-    frame_button.pack(fill="both")
-    butt = Tkinter.Button(frame_button,
-                          text="查询",
-                          command=search_callback_wrapper)
-    butt.pack()
+    butt_search = Tkinter.Button(ff_button,
+                                 text="查询",
+                                 command=search_callback_wrapper)
+    butt_search.grid()
+    enum_callback_wrapper = lambda x: x
+    butt_enum = Tkinter.Button(ff_button,
+                               text="穷举",
+                               command=enum_callback_wrapper)
+    butt_enum.grid()
 
-    top.mainloop()
+    tree = ttk.Treeview(ff_treeview)
+    tree.grid()
+    tree["columns"] = ("country", "city", "duns", "address")
+    tree.heading("country", text="国家")
+    tree.heading("city", text="城市")
+    tree.heading("duns", text="duns")
+    tree.heading("address", text="地址")
+
+    root.mainloop()
 
 
 if __name__ == '__main__':
