@@ -114,18 +114,26 @@ def main():
     cols = ["duns", "country", "city", "name"]
     tree["columns"] = cols
     tree.column("#0", width=0)
+
     # http://stackoverflow.com/questions/20079989
     def sort_wrapper(col):
         _col = col
         return lambda: ui_utility.treeview_sort_column(tree, _col, False)
+
     for col in cols:
-        tree.heading(col,
-                     command=sort_wrapper(col))
+        tree.heading(col, command=sort_wrapper(col))
     tree.heading("duns", text="duns")
     tree.heading("country", text="国家")
     tree.heading("city", text="城市")
     tree.heading("name", text="名称")
+
     # tree.heading("address", text="地址")
+
+    # Treeview copy.
+    def treeview_copy_wrapper(event):
+        ui_utility.treeview_copy_rows(tree)
+
+    tree.bind("<Control-c>", treeview_copy_wrapper)
 
     root.mainloop()
 

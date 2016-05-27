@@ -133,10 +133,24 @@ def update_tree_content(tree_view, result):
 def treeview_sort_column(tv, col, reverse):
     """http://stackoverflow.com/questions/22032152/python-ttk-treeview-sort-numbers
     """
-    print col, reverse
     l = [(tv.set(k, col), k) for k in tv.get_children('')]
     l.sort(key=lambda t: str(t[0]).upper(), reverse=reverse)
     #      ^^^^^^^^^^^^^^^^^^^^^^^
     for index, (val, k) in enumerate(l):
         tv.move(k, '', index)
     tv.heading(col, command=lambda: treeview_sort_column(tv, col, not reverse))
+
+
+def treeview_copy_rows(tv):
+    """This function helps get the curselection info to the clipboard.
+    Keyword Arguments:
+    tv --
+    """
+    curItems = tv.selection()
+    output = ""
+    for i in curItems:
+        value = tv.item(i)["values"]
+        output += "%d|%s\r\n" % (value[0], value[-1])
+    if output != "":
+        tv.clipboard_clear()
+        tv.clipboard_append(output[:-2])
