@@ -17,6 +17,7 @@ from static_content import *
 
 "https://www.dandb.com/search/?search_type=duns&duns=557700898&country="
 
+
 def get_search_url(country,
                    name,
                    state=None,
@@ -28,7 +29,8 @@ def get_search_url(country,
 
     :country: the country full name, converted to its abbrev.
     :name: the company name keyword.
-    :state: used only if country is US, provided as full name, converted to its abbrev.
+    :state: used only if country is US, provided as full name, converted to its
+    abbrev.
     :city: the city of the company
     :zip: the zipcode of the city or district.
     :address: part of the company address.
@@ -132,6 +134,29 @@ def search_callback(country, state, name, city, zip_code, address):
     search_keyword += datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S")
     parse_to_csv(result, "%s.csv" % search_keyword)
     return search_keyword + ".csv"
+
+
+def filter_result(result):
+    """This function helps squeeze out some definitely useless entry of result.
+    Keyword Arguments:
+    result --
+    """
+    num = len(result)
+    del_idx = []
+    for i in xrange(num):
+        test_valid = dict()
+        # May need more conditions in the future.
+        test_valid["out_of_business_indicator"] = ["", "0"]
+        test_valid["duns_support_indicator"] = [""]
+        test_valid["match_indicator"] = ["", "C"]
+        test_valid["branch_indicator"] = ["", "0"]
+        for test_valid_key, test_valid_list in test_valid:
+            if test_valid_key in result[i] and result[i][
+                    test_valid_key] not in test_valid_list:
+                del_idx.append(i)
+                break
+    new_result = [result[_] for _ in xrange(num) if _ not in del_idx]
+    return new_result
 
 
 def main():

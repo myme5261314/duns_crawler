@@ -13,7 +13,7 @@ import Tkinter
 import ttk
 import tkMessageBox
 from static_content import *
-from duns_utils import search_callback
+import duns_utils
 import ui_utility
 
 
@@ -84,40 +84,16 @@ def main():
     entry_address.grid(column=1, row=0)
 
     def search_callback_wrapper():
-        # curselection returns str list.
-        country_idx = map(int, list_country.curselection())
         try:
-            assert len(country_idx) == 1
-            country_idx = country_idx[0]
-        except AssertionError:
-            tkMessageBox.showerror("国家", "请选择国家！")
-            return
-        country = countries[country_idx]
-
-        name = entry_name.get()
-        try:
-            assert name != ""
-            # assert ' ' not in name
-        except AssertionError:
-            tkMessageBox.showerror("名称", "名称不能为空！")
-            return
-
-        city = entry_city.get()
-        zip_code = entry_zip.get()
-        try:
-            zip_code = int(zip_code) if zip_code != "" else -1
-        except ValueError:
-            tkMessageBox.showerror("邮编", "邮编必须为数字！")
-            return
-        address = entry_address.get()
-        result_path = ""
-        try:
-            result_path = search_callback(country, "", name, city, zip_code,
-                                          address)
-        except Exception, e:
-            tkMessageBox.showerror("底层错误", e)
-            return
-        tkMessageBox.showinfo("结果", "查询成功，结果保存在文件%s中！" % result_path)
+            country, name, city, zip_code, address = ui_utility.get_query_info(
+                list_country, entry_name, entry_city, entry_zip, entry_address)
+            url = duns_utils.get_search_url(country, name, city, zip_code,
+                                            address)
+            result = duns_utils.get_search_result(url)
+            result = duns_utils.filter_result(result)
+            print result
+        except Exception as e:
+            tkMessageBox.showerror("错误", e)
 
     butt_search = Tkinter.Button(ff_button,
                                  text="查询",
