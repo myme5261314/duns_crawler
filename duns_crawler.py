@@ -12,6 +12,8 @@ This is a crawler to get duns.
 import Tkinter
 import ttk
 import tkMessageBox
+import traceback
+import copy
 from static_content import *
 import duns_utils
 import ui_utility
@@ -83,6 +85,8 @@ def main():
     entry_address = Tkinter.Entry(ff_address)
     entry_address.grid(column=1, row=0)
 
+    tree = ttk.Treeview(ff_treeview)
+
     def search_callback_wrapper():
         try:
             country, name, city, zip_code, address = ui_utility.get_query_info(
@@ -91,8 +95,9 @@ def main():
                                             address)
             result = duns_utils.get_search_result(url)
             result = duns_utils.filter_result(result)
-            print result
+            ui_utility.update_tree_content(tree, result)
         except Exception as e:
+            traceback.print_exc()
             tkMessageBox.showerror("错误", e)
 
     butt_search = Tkinter.Button(ff_button,
@@ -105,13 +110,22 @@ def main():
                                command=enum_callback_wrapper)
     butt_enum.grid()
 
-    tree = ttk.Treeview(ff_treeview)
     tree.grid()
-    tree["columns"] = ("country", "city", "duns", "address")
+    cols = ["duns", "country", "city", "name"]
+    tree["columns"] = cols
+    tree.column("#0", width=0)
+    # http://stackoverflow.com/questions/20079989
+    def sort_wrapper(col):
+        _col = col
+        return lambda: ui_utility.treeview_sort_column(tree, _col, False)
+    for col in cols:
+        tree.heading(col,
+                     command=sort_wrapper(col))
+    tree.heading("duns", text="duns")
     tree.heading("country", text="国家")
     tree.heading("city", text="城市")
-    tree.heading("duns", text="duns")
-    tree.heading("address", text="地址")
+    tree.heading("name", text="名称")
+    # tree.heading("address", text="地址")
 
     root.mainloop()
 

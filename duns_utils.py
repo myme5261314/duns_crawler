@@ -56,7 +56,7 @@ def get_search_url(country,
     key_str += "state=%s&" % get_state_dict()[
         state] if country in default_country and state is not None else ""
     key_str += "" if city is None and city != "" else "city=%s&" % city
-    key_str += "" if zip_code is None else "zip=%d&" % zip_code
+    key_str += "" if zip_code is None else "zip=%s&" % zip_code
     if address is not None:
         address = address.replace(' ', "%20")
     key_str += "" if address is None else "address=%s&" % address
@@ -149,8 +149,8 @@ def filter_result(result):
         test_valid["out_of_business_indicator"] = ["", "0"]
         test_valid["duns_support_indicator"] = [""]
         test_valid["match_indicator"] = ["", "C"]
-        test_valid["branch_indicator"] = ["", "0"]
-        for test_valid_key, test_valid_list in test_valid:
+        test_valid["branch_indicator"] = ["", 0]
+        for test_valid_key, test_valid_list in test_valid.iteritems():
             if test_valid_key in result[i] and result[i][
                     test_valid_key] not in test_valid_list:
                 del_idx.append(i)

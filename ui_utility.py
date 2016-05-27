@@ -11,6 +11,7 @@ This file defines some derived UI class to help GUI works better.
 
 import Tkinter as tk
 import re
+import static_content
 
 
 def get_country_info(list_country):
@@ -27,7 +28,7 @@ def get_country_info(list_country):
         country_idx = country_idx[0]
     except AssertionError:
         raise Exception("请选择国家！")
-    countries = sorted(get_country_dict().keys())
+    countries = sorted(static_content.get_country_dict().keys())
     country = countries[country_idx]
     return country
 
@@ -42,7 +43,7 @@ def get_name_info(entry_name):
     name = entry_name.get()
     try:
         assert name != ""
-        assert re.match("\d", name) == None
+        assert re.match("\d", name) is None
         return name
     except AssertionError:
         raise Exception("公司名称不能为空，或包含数字！")
@@ -101,9 +102,41 @@ def get_query_info(list_country, entry_name, entry_city, entry_zip,
     try:
         country = get_country_info(list_country)
         name = get_name_info(entry_name)
-        city = get_name_info(entry_city)
-        zip_code = get_name_info(entry_zip)
-        address = get_name_info(entry_address)
+        city = get_city_info(entry_city)
+        zip_code = get_zip_info(entry_zip)
+        address = get_address_info(entry_address)
         return [country, name, city, zip_code, address]
     except Exception as e:
         raise Exception(e)
+
+
+def update_tree_content(tree_view, result):
+    """This function helps update the contents of the treeview widget, either
+    add new entry or update existing entry.
+    Keyword Arguments:
+    tree_view -- a ttk.Treeview object that used to display results.
+    result    -- the result after search.
+    """
+    duns_list = tree_view.get_children()
+    for entry in result:
+        duns = entry["duns_number"]
+        country = entry["country_code"]
+        name = entry["name"]
+        city = entry["city"]
+        if duns not in duns_list:
+            tree_view.insert("",
+                             "end",
+                             duns,
+                             values=(duns, country, city, name))
+
+
+def treeview_sort_column(tv, col, reverse):
+    """http://stackoverflow.com/questions/22032152/python-ttk-treeview-sort-numbers
+    """
+    print col, reverse
+    l = [(tv.set(k, col), k) for k in tv.get_children('')]
+    l.sort(key=lambda t: str(t[0]).upper(), reverse=reverse)
+    #      ^^^^^^^^^^^^^^^^^^^^^^^
+    for index, (val, k) in enumerate(l):
+        tv.move(k, '', index)
+    tv.heading(col, command=lambda: treeview_sort_column(tv, col, not reverse))
