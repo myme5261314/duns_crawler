@@ -165,5 +165,5 @@ def treeview_limit_entry(tv, city):
     """
     city_upper = city.upper()
     for entry in tv.get_children(''):
-        if tv.item(entry)["values"][2].upper() != city_upper:
+        if city_upper not in tv.item(entry)["values"][2].upper():
             tv.delete(entry)
