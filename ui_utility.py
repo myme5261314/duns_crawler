@@ -123,11 +123,15 @@ def update_tree_content(tree_view, result):
         country = entry["country_code"]
         name = entry["name"]
         city = entry["city"]
+        address_line1 = entry["address_line_1"]
+        address_line2 = entry["address_line_2"]
+        zip_code = entry["postal_code"]
         if duns not in duns_list:
             tree_view.insert("",
                              "end",
                              duns,
-                             values=(duns, country, city, name))
+                             values=(duns, country, city, name, address_line1,
+                                     address_line2, zip_code))
 
 
 def treeview_sort_column(tv, col, reverse):
@@ -150,7 +154,8 @@ def treeview_copy_rows(tv):
     output = ""
     for i in curItems:
         value = tv.item(i)["values"]
-        output += "%d|%s\r\n" % (value[0], value[-1])
+        output += "%d|%s|%s|%s|%s\r\n" % (value[0], value[3], value[4],
+                                          value[5], value[6])
     if output != "":
         tv.clipboard_clear()
         tv.clipboard_append(output[:-2])

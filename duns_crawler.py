@@ -144,7 +144,7 @@ def main():
     butt_limit.grid()
 
     tree.grid()
-    cols = ["duns", "country", "city", "name"]
+    cols = ["duns", "country", "city", "name", "address_line1", "address_line2", "zip_code"]
     tree["columns"] = cols
     tree.column("#0", width=0)
 
@@ -159,6 +159,9 @@ def main():
     tree.heading("country", text="国家")
     tree.heading("city", text="城市")
     tree.heading("name", text="名称")
+    tree.heading("address_line1", text="地址行一")
+    tree.heading("address_line2", text="地址行二")
+    tree.heading("zip_code", text="邮编")
 
     # tree.heading("address", text="地址")
 
