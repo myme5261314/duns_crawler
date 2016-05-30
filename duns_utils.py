@@ -13,6 +13,7 @@ import urllib2
 import json
 import csv
 import datetime
+from multiprocessing import Pool
 from static_content import *
 
 "https://www.dandb.com/search/?search_type=duns&duns=557700898&country="
@@ -157,6 +158,24 @@ def filter_result(result):
                 break
     new_result = [result[_] for _ in xrange(num) if _ not in del_idx]
     return new_result
+
+
+def pool_enum_search(country, name_list, city, zip_code, address):
+    """This function use a Pool to execute the search operations.
+    Keyword Arguments:
+    country   --
+    name_list --
+    city      --
+    zip_code  --
+    address   --
+    """
+    url_list = map(
+        lambda x: get_search_url(country, x, city, zip_code, address),
+        name_list)
+    pool = Pool(10)
+    result_list = pool.map(get_search_result, url_list)
+    result_list = map(filter_result, result_list)
+    return result_list
 
 
 def main():

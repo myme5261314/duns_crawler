@@ -13,7 +13,8 @@ import Tkinter
 import ttk
 import tkMessageBox
 import traceback
-import copy
+import string
+import itertools
 from static_content import *
 import duns_utils
 import ui_utility
@@ -104,7 +105,28 @@ def main():
                                  text="查询",
                                  command=search_callback_wrapper)
     butt_search.grid()
-    enum_callback_wrapper = lambda x: x
+
+    def enum_callback_wrapper():
+        try:
+            country, name, city, zip_code, address = ui_utility.get_query_info(
+                list_country, entry_name, entry_city, entry_zip, entry_address)
+            assert len(name.split(" ")) == 1 or len(name.split(" ")) == 2
+
+            def enum_name(name):
+                alphabet = list(string.ascii_lowercase)
+                name_sep = name.split(" ")
+                for c in alphabet:
+                    yield "".join([name_sep[0]] + [c] + ([name_sep[1]] if len(
+                        name_sep) == 2 else []))
+
+            result_list = duns_utils.pool_enum_search(country, enum_name(name),
+                                                      city, zip_code, address)
+            result_list = list(itertools.chain.from_iterable(result_list))
+            ui_utility.update_tree_content(tree, result_list)
+        except Exception as e:
+            traceback.print_exc()
+            tkMessageBox.showerror("错误", e)
+
     butt_enum = Tkinter.Button(ff_button,
                                text="穷举",
                                command=enum_callback_wrapper)
