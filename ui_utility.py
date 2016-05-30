@@ -154,3 +154,16 @@ def treeview_copy_rows(tv):
     if output != "":
         tv.clipboard_clear()
         tv.clipboard_append(output[:-2])
+
+
+def treeview_limit_entry(tv, city):
+    """This function helps squeeze out those entries in the treeview whose city
+    isn't the same with provided.
+    Keyword Arguments:
+    tv   --
+    city --
+    """
+    city_upper = city.upper()
+    for entry in tv.get_children(''):
+        if tv.item(entry)["values"][2].upper() != city_upper:
+            tv.delete(entry)

@@ -131,6 +131,17 @@ def main():
                                text="穷举",
                                command=enum_callback_wrapper)
     butt_enum.grid()
+    def limit_callback_wrapper():
+        try:
+            city = ui_utility.get_city_info(entry_city)
+            if city == "":
+                raise Exception("城市名称为空！")
+            ui_utility.treeview_limit_entry(tree, city)
+        except Exception as e:
+            traceback.print_exc()
+            tkMessageBox.showerror("错误", e)
+    butt_limit = Tkinter.Button(ff_button, text="筛除", command=limit_callback_wrapper)
+    butt_limit.grid()
 
     tree.grid()
     cols = ["duns", "country", "city", "name"]
