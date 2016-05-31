@@ -172,8 +172,10 @@ def pool_enum_search(country, name_list, city, zip_code, address):
     url_list = map(
         lambda x: get_search_url(country, x, city, zip_code, address),
         name_list)
-    pool = Pool(10)
-    result_list = pool.map(get_search_result, url_list)
+    # Seems osx has some problem with this pool code. Need investigate how to fix.
+    # pool = Pool(10)
+    # result_list = pool.map(get_search_result, url_list)
+    result_list = map(get_search_result, url_list)
     result_list = map(filter_result, result_list)
     return result_list
 
