@@ -18,6 +18,7 @@ import itertools
 from static_content import *
 import duns_utils
 import ui_utility
+from multiprocessing import Pool
 
 
 def main():
@@ -105,6 +106,7 @@ def main():
                                  text="查询",
                                  command=search_callback_wrapper)
     butt_search.grid()
+    pool = Pool(10)
 
     def enum_callback_wrapper():
         try:
@@ -119,7 +121,7 @@ def main():
                     yield "".join([name_sep[0]] + [c] + ([name_sep[1]] if len(
                         name_sep) == 2 else []))
 
-            result_list = duns_utils.pool_enum_search(country, enum_name(name),
+            result_list = duns_utils.pool_enum_search(pool, country, enum_name(name),
                                                       city, zip_code, address)
             result_list = list(itertools.chain.from_iterable(result_list))
             ui_utility.update_tree_content(tree, result_list)
