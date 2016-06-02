@@ -117,7 +117,6 @@ def update_tree_content(tree_view, result):
     tree_view -- a ttk.Treeview object that used to display results.
     result    -- the result after search.
     """
-    duns_list = tree_view.get_children()
     for entry in result:
         duns = entry["duns_number"]
         country = entry["country_code"]
@@ -126,7 +125,7 @@ def update_tree_content(tree_view, result):
         address_line1 = entry["address_line_1"]
         address_line2 = entry["address_line_2"]
         zip_code = entry["postal_code"]
-        if duns not in duns_list:
+        if duns not in tree_view.get_children():
             tree_view.insert("",
                              "end",
                              duns,
