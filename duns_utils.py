@@ -160,7 +160,7 @@ def filter_result(result):
     return new_result
 
 
-def pool_enum_search(pool, country, name_list, city, zip_code, address):
+def pool_enum_search(country, name_list, city, zip_code, address):
     """This function use a Pool to execute the search operations.
     Keyword Arguments:
     country   --
@@ -174,8 +174,8 @@ def pool_enum_search(pool, country, name_list, city, zip_code, address):
         name_list)
     # Seems osx has some problem with this pool code. Need investigate how to fix.
     # pool = Pool(10)
-    result_list = pool.map(get_search_result, url_list)
-    # result_list = map(get_search_result, url_list)
+    # result_list = pool.map(get_search_result, url_list)
+    result_list = map(get_search_result, url_list)
     result_list = map(filter_result, result_list)
     return result_list
 
@@ -186,15 +186,6 @@ def main():
     """
     print get_search_result(get_search_url("", "google", state="California"))
     print get_search_result(get_search_url("Australia", "google"))
-    alphabet = list(string.ascii_lowercase)
-    name_list = []
-    for char in alphabet:
-        name_list.append("a"+char)
-    url_list = map(
-        lambda x: get_search_url("Brazil", x, "", "", ""),
-        name_list)
-    pool = Pool(10)
-    result_list = pool.map(get_search_result, url_list)
 
 
 if __name__ == '__main__':
