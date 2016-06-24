@@ -49,9 +49,9 @@ def period2date(period_str):
     start_str = temp[0]
     end_str = temp[1]
     start_date = datetime.date(
-        int(start_str[:3]), int(start_str[4:5]), int(start_str[6:7]))
+        int(start_str[:4]), int(start_str[4:6]), int(start_str[6:8]))
     end_date = datetime.date(
-        int(end_str[:3]), int(end_str[4:5]), int(end_str[6:7]))
+        int(end_str[:4]), int(end_str[4:6]), int(end_str[6:8]))
     return (start_date, end_date)
 
 
@@ -73,11 +73,12 @@ def list_page_extractor(page_content):
 def list_page_crawl(period_str):
     content = rs.get(url_t % period_str).text
     result = [entry for entry in list_page_extractor(content)]
-    if len(result) > 50:
+    # Max 50 entries.
+    if len(result) == 50:
         start_date, end_date = period2date(period_str)
         split_period_list = period_generate(start_date.year, start_date.month,
                                             start_date.day, end_date.year,
-                                            end_date.month, end_date.day, 5)
+                                            end_date.month, end_date.day, 1)
         result = []
         for split_period in split_period_list:
             result += [entry
