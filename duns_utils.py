@@ -137,7 +137,7 @@ def search_callback(country, state, name, city, zip_code, address):
     return search_keyword + ".csv"
 
 
-def filter_result(result):
+def squeeze_result(result):
     """This function helps squeeze out some definitely useless entry of result.
     Keyword Arguments:
     result --
@@ -176,7 +176,7 @@ def pool_enum_search(country, name_list, city, zip_code, address):
     pool = Pool(10)
     result_list = pool.map(get_search_result, url_list)
     # result_list = map(get_search_result, url_list)
-    result_list = map(filter_result, result_list)
+    result_list = map(squeeze_result, result_list)
     return result_list
 
 
