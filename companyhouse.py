@@ -29,12 +29,16 @@ def generate_json_path(company_no):
 def handle_single_company(company_no):
     path = generate_json_path(company_no)
     if os.path.isfile(path) and os.stat(path).st_size > 0:
-        return True
+        return False
     else:
-        content = rs.get(url_t % company_no, auth=auth_pass)
-        with open(path, "w") as f:
-            f.write(content.text)
-            return True
+        try:
+            content = rs.get(url_t % company_no, auth=auth_pass)
+            with open(path, "w") as f:
+                f.write(content.text.encode("utf8"))
+                return True
+        except Exception as e:
+            print e
+            return False
 
 
 def extract_company_no_from_url(url):
@@ -64,13 +68,15 @@ def keep_working():
               max=lines_num / bunch_num,
               suffix="%(percent).1f%% - %(eta)ds\n")
     for bunch_data in generate_bunch_data("endole.csv", bunch_num):
-        start_time = time.clock()
-        pool.map(handle_single_company, bunch_data)
-        elapsed_time = time.clock() - start_time
-        sleep_time = bunch_interval * 1.2 - elapsed_time
+        start_time = time.time()
+        result = pool.map(handle_single_company, bunch_data)
+        total_handle = sum(result)
+        elapsed_time = time.time() - start_time
+        sleep_time = bunch_interval * total_handle / float(bunch_num) * 1.1 - elapsed_time
         if sleep_time > 0:
+            print "Elapased for %d seconds, Sleep for %d seconds." % (
+                elapsed_time, sleep_time)
             time.sleep(sleep_time)
-            print "Sleep for %d seconds." % sleep_time
         bar.next()
 
 
