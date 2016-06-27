@@ -72,7 +72,8 @@ def keep_working():
         result = pool.map(handle_single_company, bunch_data)
         total_handle = sum(result)
         elapsed_time = time.time() - start_time
-        sleep_time = bunch_interval * total_handle / float(bunch_num) * 1.1 - elapsed_time
+        sleep_time = bunch_interval * total_handle / float(
+            bunch_num) * 1.1 - elapsed_time
         if sleep_time > 0:
             print "Elapased for %d seconds, Sleep for %d seconds." % (
                 elapsed_time, sleep_time)
