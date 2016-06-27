@@ -95,7 +95,7 @@ def main():
             url = duns_utils.get_search_url(country, name, city, zip_code,
                                             address)
             result = duns_utils.get_search_result(url)
-            result = duns_utils.filter_result(result)
+            result = duns_utils.squeeze_result(result)
             ui_utility.update_tree_content(tree, result)
         except Exception as e:
             traceback.print_exc()

@@ -57,10 +57,8 @@ def get_search_url(country,
     key_str += "state=%s&" % get_state_dict()[
         state] if country in default_country and state is not None else ""
     key_str += "" if city is None and city != "" else "city=%s&" % city
-    key_str += "" if zip_code is None else "zip=%s&" % zip_code
-    if address is not None:
-        address = address.replace(' ', "%20")
-    key_str += "" if address is None else "address=%s&" % address
+    key_str += "" if zip_code is None else "zip=%s&" % zip_code.replace(' ', "%20")
+    key_str += "" if address is None else "address=%s&" % address.replace(' ', "%20")
     key_str = key_str[:-1]
     return base_url + key_str
 
@@ -158,6 +156,19 @@ def squeeze_result(result):
                 break
     new_result = [result[_] for _ in xrange(num) if _ not in del_idx]
     return new_result
+
+
+def filter_result(result, **conditions):
+    """This function helps filter result with the supplied conditions.
+    Keyword Arguments:
+    result       --
+    **conditions --
+    """
+    new_result = result
+    for k, v in conditions.items():
+        new_result = [it for it in new_result if it.has_key(k) and it[k].upper()==v.upper()]
+    return new_result
+
 
 
 def pool_enum_search(country, name_list, city, zip_code, address):
