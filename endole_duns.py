@@ -30,16 +30,17 @@ def generate_duns_path(company_no):
 
 def handle_single_entry(entry):
     """
-    return actual duns_number for processed entry, -1 for no valid result after
-    filter, -2 for more than one result after filter, -3 for retrieve error.
+    return 0 for processed entry, others for processing result. -1 for no valid
+    result after filter, -2 for more than one result after filter, -3 for
+    retrieve error.
 
     """
     company_no = entry[-1].split('/')[-2]
     path = generate_duns_path(company_no)
     if os.path.isfile(path) and os.stat(path).st_size > 0:
         with open(path, "r") as f:
-            x = json.load(f)
-            return x["duns_number"]
+            if json.load(f)["duns_number"] != "-3":
+                return 0
     zip_code = entry[3].split(',')[-1].strip()
     cname = entry[0]
     for c in string.punctuation:
@@ -58,6 +59,8 @@ def handle_single_entry(entry):
     except Exception as e:
         print company_no, query_url
         print e
+        with open(path, "w") as f:
+            json.dump({"duns_number": "-3"}, f)
         return -3
     new_result = duns_utils.filter_result(result, postal_code=zip_code)
     if new_result == []:
@@ -95,34 +98,38 @@ def keep_working():
     bar = Bar("Processing",
               max=lines_num / batch_num,
               suffix="%(percent).1f%% - %(eta)ds\n")
+    for bunch_data in generate_bunch_data("endole.csv", batch_num):
+        start_time = time.time()
+        result = pool.map(handle_single_entry, bunch_data)
+        total_handle = sum([_ != 0 for _ in result])
+        elapsed_time = time.time() - start_time
+        sleep_time = batch_interval * total_handle / float(
+            batch_num) * 1.1 - elapsed_time
+        if sleep_time > 0:
+            print "Elapased for %d seconds, Sleep for %d seconds." % (
+                elapsed_time, sleep_time)
+            time.sleep(sleep_time)
+        bar.next()
+
     with open("endole_duns.csv", "w") as f:
         csv_writer = csv.writer(f, delimiter="|", quotechar='"')
         csv_writer.writerow(["name", "duns_number", "cash_in_bank",
                              "net_worth", "company_address", "company_detail"])
         for bunch_data in generate_bunch_data("endole.csv", batch_num):
-            start_time = time.time()
-            result = pool.map(handle_single_entry, bunch_data)
-            for entry, duns_number in zip(bunch_data, result):
-                if duns_number == 0:
-                    continue
+            for entry in bunch_data:
+                company_no = entry[-1].split('/')[-2]
+                path = generate_duns_path(company_no)
+                with open(path, "r") as fp:
+                    duns_number = json.load(fp)["duns_number"]
                 entry.insert(1, duns_number)
                 csv_writer.writerow(entry)
-            total_handle = sum([_ != 0 for _ in result])
-            elapsed_time = time.time() - start_time
-            sleep_time = batch_interval * total_handle / float(
-                batch_num) * 1.1 - elapsed_time
-            if sleep_time > 0:
-                print "Elapased for %d seconds, Sleep for %d seconds." % (
-                    elapsed_time, sleep_time)
-                time.sleep(sleep_time)
-            bar.next()
 
 
 def main():
     entry = [
-        "Longacre Partners Limited", "1792890", "6411214",
-        "Vintners Place, 68 Upper Thames Street, London, EC4V 3BJ",
-        "https://www.endole.co.uk/company/03902703/longacre-partners-limited"
+        "Alchemy Energy Partners Ltd", "1792890", "6411214",
+        "1512 City Point, 1 Ropemaker Street, London, EC2Y 9HT",
+        "https://www.endole.co.uk/company/07555352/longacre-partners-limited"
     ]
 
     handle_single_entry(entry)
